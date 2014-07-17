@@ -16,8 +16,7 @@ type User struct {
 }
 
 var (
-  db *sql.DB
-	createTable = `CREATE TABLE IF NOT EXISTS users (
+  createTable = `CREATE TABLE IF NOT EXISTS users (
 		name VARCHAR(64) NULL DEFAULT NULL,
 		email VARCHAR(64) NULL DEFAULT NULL,
 		description VARCHAR(64) NULL DEFAULT NULL
@@ -32,19 +31,20 @@ func PanicIf(err error) {
 
 func SetupDB() *sql.DB {
   var err error
-  db, err = sql.Open("mysql", "root@/demo_db")
-	//db, err := sql.Open("mysql", "USER:PASSWORD@tcp(VM IP:VM PORT)/go_dev")
+  //db, err = sql.Open("mysql", "root@/demo_db")
+	db, err := sql.Open("mysql", "USER:PASSWORD@tcp(VM IP:VM PORT)/go_dev")
 	PanicIf(err)
+
+	ctble, err := db.Query(createTable)
+	PanicIf(err)
+	fmt.Println("Table create successull", ctble)
+
 	return db
 }
 
 func main() {
 	m := martini.Classic()
 	m.Map(SetupDB())
-
-	ctble, err := db.Query(createTable)
-	PanicIf(err)
-	fmt.Println("Table create successull", ctble)
 
 	// reads "templates" directory by default
 	m.Use(render.Renderer(render.Options{
